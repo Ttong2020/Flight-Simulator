@@ -249,5 +249,3 @@ while is_running == True:
     pygame.display.flip()
     
     clock.tick(fps)
-    
-# hs
