@@ -5,7 +5,7 @@ Why I programmed the flight simulator:
 - I want to deepen my understanding of the four basic principles of flight (lift, weight, thrust, drag).
 
 Project Description:
-- I use aerodynamic equations and joystick inputs (may use keyboard & mouse instead) to model aircraft behaviour across two control surfaces (ailerons & elevator).
+- I use aerodynamic equations and joystick inputs (may use keyboard & mouse instead) to model aircraft behaviour across two primary control surfaces (ailerons & elevator).
 - I use the Pygame module, which is a 2D game library for Python, as it is simpler to programme than a 3D game engine (Ursina).
 - My program works by moving the background, which is basically two rectangles (sky & ground). This creates a sense that the aircraft is rolling and pitching.
 - I need to calculate the coordinates of the four points for each rectangle.
@@ -13,7 +13,7 @@ Project Description:
 
 Assumptions & Future Improvements:
 - This program assumes an angle of attack above 20 degrees will stall the aircraft.
-- I hope to add the third control surface (rudder) into the program to accurately model the aircraft's yaw movement.
+- I hope to add the third primary control surface (rudder) into the program to accurately model the aircraft's yaw movement.
 - I would also like to create a runway and infrastructure to allow the aircraft to land.
 - I also hope to be able to calculate an accurate angle of attack based on the program's current data.
 - The program's variables also grow exponentially over time, which needs further debugging.

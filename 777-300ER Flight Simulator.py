@@ -184,6 +184,7 @@ while is_running == True:
     if pygame.joystick.get_count() > 0:
         change_in_roll_angle = float(joystick_1.get_axis(0))
         change_in_pitch_angle = float(joystick_1.get_axis(1))
+        change_in_yaw_angle = float(joystick_1.get_axis(2))
         throttle = (abs((joystick_1.get_axis(3)) - 1) / 2) * 0.93 + 0.07
     else:
         keys = pygame.key.get_pressed()
