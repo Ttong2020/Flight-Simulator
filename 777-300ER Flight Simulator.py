@@ -19,12 +19,12 @@ def initial_game_configuration():
 
 # calculate x, y coordinate of all vertex of sky, ground rectangle background with {roll_angle}, {pitch_angle}, {width_of_visible_screen}, {height_of_visible_screen}
 # then draw sky, ground rectangle background with {x_axis_frame}, {y_axis_frame}
-def draw_sky_ground_background(roll_angle, pitch_angle, change_in_yaw_angle, width_of_visible_screen, height_of_visible_screen, x_axis_frame, y_axis_frame, sky_colour, ground_colour):
+def draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, width_of_visible_screen, height_of_visible_screen, x_axis_frame, y_axis_frame, sky_colour, ground_colour):
     
     width_of_background = math.pow(math.pow(width_of_visible_screen, 2) + math.pow(height_of_visible_screen, 2), 0.5)
     height_of_background = height_of_visible_screen * 10
     change_in_action_due_to_height_of_visible_screen = height_of_visible_screen / 100
-    x_y_center_of_background = [(width_of_visible_screen / 2) + (math.sin(math.radians(roll_angle)) * (pitch_angle + change_in_yaw_angle) * change_in_action_due_to_height_of_visible_screen), (height_of_visible_screen / 2) + math.cos(math.radians(roll_angle)) * (pitch_angle + change_in_yaw_angle) * change_in_action_due_to_height_of_visible_screen]
+    x_y_center_of_background = [(width_of_visible_screen / 2) + (math.sin(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen), (height_of_visible_screen / 2) + math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen]
     
     frame_visible_screen_main = pygame.Surface((width_of_visible_screen, height_of_visible_screen))
     x1 = x_y_center_of_background[0] - math.cos(math.radians(roll_angle)) * (width_of_background / 2)
@@ -43,13 +43,13 @@ def draw_sky_ground_background(roll_angle, pitch_angle, change_in_yaw_angle, wid
     pygame.draw.polygon(frame_visible_screen_main, ground_colour, [(x1, y1), (x2, y2), (x3_ground, y3_ground), (x4_ground, y4_ground)])
     main.blit(frame_visible_screen_main, (x_axis_frame, y_axis_frame))
 
-def draw_primary_flight_display(roll_angle, pitch_angle, change_in_yaw_angle, airspeed, altitude):
+def draw_primary_flight_display(roll_angle, pitch_angle, yaw_angle, airspeed, altitude):
     
     move_x_axis = 0
     move_y_axis = 0
     x_y_center_of_primary_flight_display = [100 + move_x_axis + (250 / 2), 500 + move_y_axis + (250 / 2)]
     pygame.draw.rect(main, (40, 40, 40), (100 + move_x_axis, 500 + move_y_axis, 250, 250))
-    draw_sky_ground_background(roll_angle, pitch_angle, change_in_yaw_angle, 150, 150, 150 + move_x_axis, 550 + move_y_axis, (60, 134, 189), (137, 73, 34))
+    draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, 150, 150, 150 + move_x_axis, 550 + move_y_axis, (60, 134, 189), (137, 73, 34))
     pygame.draw.rect(main, (0, 0, 0), (x_y_center_of_primary_flight_display[0] - 5, x_y_center_of_primary_flight_display[1] - 5, 10, 10))
     #pygame.draw.polygon(main, (0, 0, 0), [(x_y_center_of_primary_flight_display[0] - 120 + move_x_axis, x_y_center_of_primary_flight_display[1] - 5 + move_y_axis), (10, 10), (10, 10)])
 
@@ -184,7 +184,7 @@ while is_running == True:
     if pygame.joystick.get_count() > 0:
         change_in_roll_angle = float(joystick_1.get_axis(0))
         change_in_pitch_angle = float(joystick_1.get_axis(1))
-        change_in_yaw_angle = float(joystick_1.get_axis(2))
+        yaw_angle = float(joystick_1.get_axis(2)) * math.sin(math.radians(roll_angle)) * 7
         throttle = (abs((joystick_1.get_axis(3)) - 1) / 2) * 0.93 + 0.07
     else:
         keys = pygame.key.get_pressed()
@@ -199,7 +199,7 @@ while is_running == True:
         mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
         change_in_roll_angle = (mouse_pos_x - 720) / 720
         change_in_pitch_angle = (mouse_pos_y - 450) / 450
-        change_in_yaw_angle = 0
+        yaw_angle = 0 * math.sin(math.radians(roll_angle)) * 7
     
     main.fill((192, 192, 192))
     
@@ -214,8 +214,8 @@ while is_running == True:
     # funtion to calculate height, actual_speed, horizontal_speed, vertical_speed, airspeed, altitude
     height, actual_speed, horizontal_speed, vertical_speed, airspeed, altitude = calculate_airspeed_altitude(flight_path_angle, height, roll_angle, pitch_angle, actual_speed, lift_coefficient, drag_coefficient, horizontal_speed, vertical_speed, throttle)
     
-    draw_sky_ground_background(roll_angle, pitch_angle, change_in_yaw_angle, 1440, 900, 0, 0, (135, 206, 235), (34, 139, 34))
-    draw_primary_flight_display(roll_angle, pitch_angle, change_in_yaw_angle, airspeed, altitude)
+    draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, 1440, 900, 0, 0, (135, 206, 235), (34, 139, 34))
+    draw_primary_flight_display(roll_angle, pitch_angle, yaw_angle, airspeed, altitude)
     
     airspeed_label_main = pygame.font.Font(None, 60).render("AoA: " + str(round(AoA, 0))[:-2], True, (255, 255, 255))
     main.blit(airspeed_label_main, (0, 0))
