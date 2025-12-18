@@ -9,7 +9,7 @@ Why I programmed the flight simulator and what I learnt through this flight simu
 Project Description:
 - I use aerodynamic equations and joystick inputs (may use keyboard & mouse instead) to model aircraft behaviour across three primary control surfaces.
 - I use the Pygame module, which is a 2D game library for Python, as it is simpler to programme than a 3D game engine (Ursina).
-- My program works by moving the background, which is two rectangles that represent the sky and ground. This creates a sense that the aircraft is rolling and pitching.
+- The flight simulator works by moving the background, which consists of two rectangles that represent the sky and ground. This creates a sense that the aircraft is rolling and pitching.
 - I need to calculate the coordinates of the four corners for each rectangle.
 - Initially, I struggled to find the correct equation to calculate all four coordinates of the rectangles, so I drew a scale diagram on paper to help solve this geometric problem.
 
