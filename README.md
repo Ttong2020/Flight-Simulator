@@ -7,7 +7,7 @@ Why I programmed the flight simulator and what I learnt through this flight simu
 - I learnt how iterative testing, where I tested each new function, can reduce the complexity of debugging when a problem is found.
 
 Project Description:
-- I use aerodynamic equations and joystick inputs (may use keyboard & mouse instead) to model aircraft behaviour across three primary control axes.
+- I use aerodynamic equations and joystick inputs (may use keyboard & mouse instead) to model aircraft behaviour across three primary flight control axes.
 - I use the Pygame module, which is a 2D game library for Python, as it is simpler to programme than a 3D game engine (Ursina).
 - The flight simulator works by moving the background, which consists of two rectangles that represent the sky and ground. This creates a sense that the aircraft is rolling and pitching.
 - I need to calculate the coordinates of the four corners for each rectangle.
