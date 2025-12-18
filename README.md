@@ -1,8 +1,10 @@
 Project's Title:
 - 777-300ER Flight Simulator using Python
 
-Why I programmed the flight simulator:
-- I want to deepen my understanding of the four basic principles of flight (lift, weight, thrust, drag).
+Why I programmed the flight simulator and what I learnt through this flight simulator:
+- I want to deepen my understanding of the four principles of flight (lift, weight, thrust, drag).
+- I developed an understanding how all four principles of flight and angle of attack interact, and how reduced airspeed reduces climb performance and stall margins.
+- I also understand how iterative testing, where I tested every new function made, can reduce the complexity of debugging when a problem is found.
 
 Project Description:
 - I use aerodynamic equations and joystick inputs (may use keyboard & mouse instead) to model aircraft behaviour across three primary control surfaces.
@@ -15,7 +17,7 @@ Assumptions & Future Improvements:
 - This program assumes an angle of attack above 20 degrees will stall the aircraft.
 - I would like to create a runway and infrastructure to allow the aircraft to land.
 - I also hope to be able to calculate an accurate angle of attack based on the program's current data.
-- The program's variables also grow exponentially over time, which needs further debugging.
+- The program's variables also grow exponentially over time when altitude or airspeed is too high, which needs further debugging.
 
 How to run the flight simulator:
 - Download and open VS Code / Visual Studio
