@@ -1,6 +1,37 @@
 import pygame
 import math
 
+def matrix_multiplication(*args):
+    matrices_to_multiply_tuple = args
+    print(matrices_to_multiply_tuple)
+    matrix_1 = matrices_to_multiply_tuple[0]
+    matrices_to_multiply_tuple = matrices_to_multiply_tuple[1:]
+    for matrix in range(len(matrices_to_multiply_tuple)):
+        matrix_2 = matrices_to_multiply_tuple[matrix]
+        if len(matrix_1[0]) == len(matrix_2):
+            result_matrix = []
+            for matrix_1_row in range(len(matrix_1)):
+                result_matrix.append([])
+                for matrix_2_column in range(len(matrix_2[0])):
+                    result_matrix[matrix_1_row].append(0)
+            for matrix_1_row in range(len(matrix_1)):
+                for matrix_2_column in range(len(matrix_2[0])):
+                    for matrix_1_column in range(len(matrix_1[0])):
+                        result_matrix[matrix_1_row][matrix_2_column] = result_matrix[matrix_1_row][matrix_2_column] + (matrix_1[matrix_1_row][matrix_1_column] * matrix_2[matrix_1_column][matrix_2_column])
+            print(result_matrix)
+            matrix_1 = result_matrix
+
+
+
+
+matrix_1 = [[1,2,3],[4,5,6]]
+matrix_2 = [[7,8],[9,10],[11,12]]
+matrix_3 = [[7,8],[11,12]]
+matrix_4 = [[7],[10]]
+matrix_multiplication(matrix_1, matrix_2, matrix_3, matrix_4)
+exit()
+
+
 #initial game configuration
 def initial_game_configuration():
     
