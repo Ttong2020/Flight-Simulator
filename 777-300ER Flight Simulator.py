@@ -1,9 +1,33 @@
 import pygame
 import math
 
+matrix_to_origin = []
+
+
+def matrix_addition(*args):
+    matrices_to_add_tuple = args
+    matrix_1 = matrices_to_add_tuple[0]
+    matrices_to_add_tuple = matrices_to_add_tuple[1:]
+    for matrix in range(len(matrices_to_add_tuple)):
+        matrix_2 = matrices_to_add_tuple[matrix]
+        if len(matrix_1) == len(matrix_2) and len(matrix_1[0]) == len(matrix_2[0]):
+            result_matrix = []
+            for matrix_1_row in range(len(matrix_1)):
+                result_matrix.append([])
+                for matrix_1_column in range(len(matrix_1[0])):
+                    result_matrix[matrix_1_row].append(0)
+            for matrix_1_row in range(len(matrix_1)):
+                for matrix_1_column in range(len(matrix_1[0])):
+                    result_matrix[matrix_1_row][matrix_1_column] = matrix_1[matrix_1_row][matrix_1_column] + matrix_2[matrix_1_row][matrix_1_column]
+            print(result_matrix)
+            matrix_1 = result_matrix
+    
+    return(result_matrix)
+
+
+
 def matrix_multiplication(*args):
     matrices_to_multiply_tuple = args
-    print(matrices_to_multiply_tuple)
     matrix_1 = matrices_to_multiply_tuple[0]
     matrices_to_multiply_tuple = matrices_to_multiply_tuple[1:]
     for matrix in range(len(matrices_to_multiply_tuple)):
@@ -20,17 +44,17 @@ def matrix_multiplication(*args):
                         result_matrix[matrix_1_row][matrix_2_column] = result_matrix[matrix_1_row][matrix_2_column] + (matrix_1[matrix_1_row][matrix_1_column] * matrix_2[matrix_1_column][matrix_2_column])
             print(result_matrix)
             matrix_1 = result_matrix
+    
+    return(result_matrix)
 
 
 
 
-matrix_1 = [[1,2,3],[4,5,6]]
-matrix_2 = [[7,8],[9,10],[11,12]]
-matrix_3 = [[7,8],[11,12]]
-matrix_4 = [[7],[10]]
-matrix_multiplication(matrix_1, matrix_2, matrix_3, matrix_4)
+matrix_2 = [[4,3],[2,1]]
+matrix_1 = [[5,6],[7,8]]
+matrix_3 = [[5,6],[7,8]]
+matrix_addition(matrix_1, matrix_2, matrix_3)
 exit()
-
 
 #initial game configuration
 def initial_game_configuration():
@@ -58,6 +82,7 @@ def draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, width_of_visi
     x_y_center_of_background = [(width_of_visible_screen / 2) + (math.sin(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen), (height_of_visible_screen / 2) + math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen]
     
     frame_visible_screen_main = pygame.Surface((width_of_visible_screen, height_of_visible_screen))
+    matrix_last = []
     x1 = x_y_center_of_background[0] - math.cos(math.radians(roll_angle)) * (width_of_background / 2)
     y1 = x_y_center_of_background[1] + math.sin(math.radians(roll_angle)) * (width_of_background / 2)
     x2 = x_y_center_of_background[0] + math.cos(math.radians(roll_angle)) * (width_of_background / 2)
@@ -70,6 +95,13 @@ def draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, width_of_visi
     y3_ground = y2 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
     x4_ground = x1 + math.sin(math.radians(roll_angle)) * (height_of_background / 2)
     y4_ground = y1 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
+    
+    
+    matrix_
+    
+    
+    
+    
     pygame.draw.polygon(frame_visible_screen_main, sky_colour, [(x1, y1), (x2, y2), (x3_sky, y3_sky), (x4_sky, y4_sky)])
     pygame.draw.polygon(frame_visible_screen_main, ground_colour, [(x1, y1), (x2, y2), (x3_ground, y3_ground), (x4_ground, y4_ground)])
     main.blit(frame_visible_screen_main, (x_axis_frame, y_axis_frame))
