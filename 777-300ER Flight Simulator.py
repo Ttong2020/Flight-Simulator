@@ -1,24 +1,28 @@
 import pygame
 import math
 
-matrix_to_origin = []
-
-
-def matrix_addition(*args):
-    matrices_to_add_tuple = args
-    matrix_1 = matrices_to_add_tuple[0]
-    matrices_to_add_tuple = matrices_to_add_tuple[1:]
-    for matrix in range(len(matrices_to_add_tuple)):
-        matrix_2 = matrices_to_add_tuple[matrix]
-        if len(matrix_1) == len(matrix_2) and len(matrix_1[0]) == len(matrix_2[0]):
+def matrix_calculation(*args):
+    matrices_to_calculate_tuple = args
+    matrix_1 = matrices_to_calculate_tuple[0]
+    matrices_to_calculate_tuple = matrices_to_calculate_tuple[1:]
+    for matrix in range(1, len(matrices_to_calculate_tuple), 2):
+        operation = matrices_to_calculate_tuple[matrix - 1]
+        matrix_2 = matrices_to_calculate_tuple[matrix]
+        if (len(matrix_1) == len(matrix_2) and len(matrix_1[0]) == len(matrix_2[0]) and operation == "+") or (len(matrix_1[0]) == len(matrix_2) and operation == "*"):
             result_matrix = []
             for matrix_1_row in range(len(matrix_1)):
                 result_matrix.append([])
-                for matrix_1_column in range(len(matrix_1[0])):
+                for matrix_2_column in range(len(matrix_2[0])):
                     result_matrix[matrix_1_row].append(0)
+            
             for matrix_1_row in range(len(matrix_1)):
-                for matrix_1_column in range(len(matrix_1[0])):
-                    result_matrix[matrix_1_row][matrix_1_column] = matrix_1[matrix_1_row][matrix_1_column] + matrix_2[matrix_1_row][matrix_1_column]
+                for matrix_2_column in range(len(matrix_2[0])):
+                    if operation == "+":
+                        result_matrix[matrix_1_row][matrix_1_column] = matrix_1[matrix_1_row][matrix_1_column] + matrix_2[matrix_1_row][matrix_1_column]
+                    if operation == "*":
+                        for matrix_1_column in range(len(matrix_1[0])):
+                            result_matrix[matrix_1_row][matrix_2_column] = result_matrix[matrix_1_row][matrix_2_column] + (matrix_1[matrix_1_row][matrix_1_column] * matrix_2[matrix_1_column][matrix_2_column])
+            
             print(result_matrix)
             matrix_1 = result_matrix
     
@@ -76,8 +80,6 @@ def initial_game_configuration():
 # then draw sky, ground rectangle background with {x_axis_frame}, {y_axis_frame}
 def draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, width_of_visible_screen, height_of_visible_screen, x_axis_frame, y_axis_frame, sky_colour, ground_colour):
     
-    width_of_background = math.pow(math.pow(width_of_visible_screen, 2) + math.pow(height_of_visible_screen, 2), 0.5)
-    height_of_background = height_of_visible_screen * 10
     change_in_action_due_to_height_of_visible_screen = height_of_visible_screen / 100
     x_y_center_of_background = [(width_of_visible_screen / 2) + (math.sin(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen), (height_of_visible_screen / 2) + math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen]
     
@@ -96,8 +98,9 @@ def draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, width_of_visi
     x4_ground = x1 + math.sin(math.radians(roll_angle)) * (height_of_background / 2)
     y4_ground = y1 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
     
-    
-    matrix_
+    rotate_matrix = [[math.cos(math.radians(roll_angle)), math.sin(math.radians(roll_angle))], [-(math.sin(math.radians(roll_angle))), math.cos(math.radians(roll_angle))]]
+    translate_matrix = [[0, 0], [math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen, math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen]]
+    result_matrix = matrix_calculation("*", origin_coordinate_matrix)
     
     
     
@@ -210,6 +213,11 @@ global fps, time_per_frame
 fps = 70
 time_per_frame = 1 / fps
 roll_angle, pitch_angle, horizontal_speed, vertical_speed, actual_speed, height, altitude, extra_lift_from_flap_setting, oswald_efficiency_factor, flight_path_angle, AoA, lift_coefficient, drag_coefficient = initial_game_configuration()
+
+width_of_background = math.pow(math.pow(1440, 2) + math.pow(900, 2), 0.5)
+height_of_background = 900 * 10
+translate_matrix_to_final_coordinate = [[width_of_background / 2, width_of_background / 2, width_of_background / 2, width_of_background / 2, width_of_background / 2, width_of_background / 2],[height_of_background / 2, height_of_background / 2, height_of_background / 2, height_of_background / 2, height_of_background / 2, height_of_background / 2]]
+origin_coordinate_matrix = [[-(width_of_background / 2), width_of_background / 2, -(width_of_background / 2), width_of_background / 2, -(width_of_background / 2), width_of_background / 2],[-(height_of_background / 2), -(height_of_background / 2), 0, 0, height_of_background / 2, height_of_background / 2]]
 
 # initialise pygame
 # produce screen {main}
