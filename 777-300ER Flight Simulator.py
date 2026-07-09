@@ -2,6 +2,7 @@ import pygame
 import math
 
 def matrix_calculation(*args):
+    print(args)
     matrices_to_calculate_tuple = args
     matrix_1 = matrices_to_calculate_tuple[0]
     matrices_to_calculate_tuple = matrices_to_calculate_tuple[1:]
@@ -18,12 +19,11 @@ def matrix_calculation(*args):
             for matrix_1_row in range(len(matrix_1)):
                 for matrix_2_column in range(len(matrix_2[0])):
                     if operation == "+":
-                        result_matrix[matrix_1_row][matrix_1_column] = matrix_1[matrix_1_row][matrix_1_column] + matrix_2[matrix_1_row][matrix_1_column]
+                        result_matrix[matrix_1_row][matrix_2_column] = matrix_1[matrix_1_row][matrix_2_column] + matrix_2[matrix_1_row][matrix_2_column]
                     if operation == "*":
                         for matrix_1_column in range(len(matrix_1[0])):
                             result_matrix[matrix_1_row][matrix_2_column] = result_matrix[matrix_1_row][matrix_2_column] + (matrix_1[matrix_1_row][matrix_1_column] * matrix_2[matrix_1_column][matrix_2_column])
             
-            print(result_matrix)
             matrix_1 = result_matrix
     
     return(result_matrix)
@@ -57,8 +57,7 @@ def matrix_multiplication(*args):
 matrix_2 = [[4,3],[2,1]]
 matrix_1 = [[5,6],[7,8]]
 matrix_3 = [[5,6],[7,8]]
-matrix_addition(matrix_1, matrix_2, matrix_3)
-exit()
+#matrix_addition(matrix_1, matrix_2, matrix_3)
 
 #initial game configuration
 def initial_game_configuration():
@@ -81,32 +80,34 @@ def initial_game_configuration():
 def draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, width_of_visible_screen, height_of_visible_screen, x_axis_frame, y_axis_frame, sky_colour, ground_colour):
     
     change_in_action_due_to_height_of_visible_screen = height_of_visible_screen / 100
-    x_y_center_of_background = [(width_of_visible_screen / 2) + (math.sin(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen), (height_of_visible_screen / 2) + math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen]
+    #x_y_center_of_background = [(width_of_visible_screen / 2) + (math.sin(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen), (height_of_visible_screen / 2) + math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen]
     
     frame_visible_screen_main = pygame.Surface((width_of_visible_screen, height_of_visible_screen))
-    matrix_last = []
-    x1 = x_y_center_of_background[0] - math.cos(math.radians(roll_angle)) * (width_of_background / 2)
-    y1 = x_y_center_of_background[1] + math.sin(math.radians(roll_angle)) * (width_of_background / 2)
-    x2 = x_y_center_of_background[0] + math.cos(math.radians(roll_angle)) * (width_of_background / 2)
-    y2 = x_y_center_of_background[1] - math.sin(math.radians(roll_angle)) * (width_of_background / 2)
-    x3_sky = x2 - math.sin(math.radians(roll_angle)) * (height_of_background / 2)
-    y3_sky = y2 - math.cos(math.radians(roll_angle)) * (height_of_background / 2)
-    x4_sky = x1 - math.sin(math.radians(roll_angle)) * (height_of_background / 2)
-    y4_sky = y1 - math.cos(math.radians(roll_angle)) * (height_of_background / 2)
-    x3_ground = x2 + math.sin(math.radians(roll_angle)) * (height_of_background / 2)
-    y3_ground = y2 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
-    x4_ground = x1 + math.sin(math.radians(roll_angle)) * (height_of_background / 2)
-    y4_ground = y1 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
     
+    if 0 == 1:
+        x1 = x_y_center_of_background[0] - math.cos(math.radians(roll_angle)) * (width_of_background / 2)
+        y1 = x_y_center_of_background[1] + math.sin(math.radians(roll_angle)) * (width_of_background / 2)
+        x2 = x_y_center_of_background[0] + math.cos(math.radians(roll_angle)) * (width_of_background / 2)
+        y2 = x_y_center_of_background[1] - math.sin(math.radians(roll_angle)) * (width_of_background / 2)
+        x3_sky = x2 - math.sin(math.radians(roll_angle)) * (height_of_background / 2)
+        y3_sky = y2 - math.cos(math.radians(roll_angle)) * (height_of_background / 2)
+        x4_sky = x1 - math.sin(math.radians(roll_angle)) * (height_of_background / 2)
+        y4_sky = y1 - math.cos(math.radians(roll_angle)) * (height_of_background / 2)
+        x3_ground = x2 + math.sin(math.radians(roll_angle)) * (height_of_background / 2)
+        y3_ground = y2 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
+        x4_ground = x1 + math.sin(math.radians(roll_angle)) * (height_of_background / 2)
+        y4_ground = y1 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
+    
+    x_axis_to_translate = (math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen) * math.sin(math.radians(roll_angle))
+    y_axis_to_translate = (math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen) * math.cos(math.radians(roll_angle))
     rotate_matrix = [[math.cos(math.radians(roll_angle)), math.sin(math.radians(roll_angle))], [-(math.sin(math.radians(roll_angle))), math.cos(math.radians(roll_angle))]]
-    translate_matrix = [[0, 0], [math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen, math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen]]
-    result_matrix = matrix_calculation("*", origin_coordinate_matrix)
+    translate_matrix = [[x_axis_to_translate, x_axis_to_translate, x_axis_to_translate, x_axis_to_translate, x_axis_to_translate, x_axis_to_translate], [y_axis_to_translate, y_axis_to_translate, y_axis_to_translate, y_axis_to_translate, y_axis_to_translate, y_axis_to_translate]]
+    result_matrix = matrix_calculation(rotate_matrix, "*", origin_coordinate_matrix, "+", translate_matrix, "+", translate_matrix_to_final_coordinate)
     
     
-    
-    
-    pygame.draw.polygon(frame_visible_screen_main, sky_colour, [(x1, y1), (x2, y2), (x3_sky, y3_sky), (x4_sky, y4_sky)])
-    pygame.draw.polygon(frame_visible_screen_main, ground_colour, [(x1, y1), (x2, y2), (x3_ground, y3_ground), (x4_ground, y4_ground)])
+    print(result_matrix)
+    pygame.draw.polygon(frame_visible_screen_main, sky_colour, [(result_matrix[0][0], result_matrix[1][0]), (result_matrix[0][1], result_matrix[1][1]), (result_matrix[0][3], result_matrix[1][3]), (result_matrix[0][2], result_matrix[1][2])])
+    pygame.draw.polygon(frame_visible_screen_main, ground_colour, [(result_matrix[0][2], result_matrix[1][2]), (result_matrix[0][3], result_matrix[1][3]), (result_matrix[0][5], result_matrix[1][5]), (result_matrix[0][4], result_matrix[1][4])])
     main.blit(frame_visible_screen_main, (x_axis_frame, y_axis_frame))
 
 def draw_primary_flight_display(roll_angle, pitch_angle, yaw_angle, airspeed, altitude):
@@ -216,7 +217,7 @@ roll_angle, pitch_angle, horizontal_speed, vertical_speed, actual_speed, height,
 
 width_of_background = math.pow(math.pow(1440, 2) + math.pow(900, 2), 0.5)
 height_of_background = 900 * 10
-translate_matrix_to_final_coordinate = [[width_of_background / 2, width_of_background / 2, width_of_background / 2, width_of_background / 2, width_of_background / 2, width_of_background / 2],[height_of_background / 2, height_of_background / 2, height_of_background / 2, height_of_background / 2, height_of_background / 2, height_of_background / 2]]
+translate_matrix_to_final_coordinate = [[1440 / 2, 1440 / 2, 1440 / 2, 1440 / 2, 1440 / 2, 1440 / 2],[900 / 2, 900 / 2, 900 / 2, 900 / 2, 900 / 2, 900 / 2]]
 origin_coordinate_matrix = [[-(width_of_background / 2), width_of_background / 2, -(width_of_background / 2), width_of_background / 2, -(width_of_background / 2), width_of_background / 2],[-(height_of_background / 2), -(height_of_background / 2), 0, 0, height_of_background / 2, height_of_background / 2]]
 
 # initialise pygame
