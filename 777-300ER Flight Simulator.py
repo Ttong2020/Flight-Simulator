@@ -139,12 +139,17 @@ def calculate_lift_drag_coefficient(roll_angle, pitch_angle, horizontal_speed, v
     # AoA = pitch_angle - flight_path_angle
     #AoA = (pitch_angle - flight_path_angle) * math.cos(math.radians(roll_angle))
     AoA = pitch_angle - flight_path_angle
-    # lift_coefficient = (lift_coefficient_for_clean_configuration + extra_lift_from_flap_setting) + lift_curve_slope * (AoA - zero_lift_angle_of_attack)
-    lift_coefficient = (0.45 + extra_lift_from_flap_setting) + 0.09 * (AoA - (-3))
+    critical_AoA = 13
+    if AoA >= critical_AoA:
+        # lift_coefficient = (extra_lift_from_flap_setting) + lift_curve_slope * ((critical_AoA - (AoA - critical_AoA) / 3) - zero_lift_angle_of_attack)
+        lift_coefficient = (extra_lift_from_flap_setting) + 0.09 * ((13 - (AoA - 13) / 3) - (-3))
+    else:
+        # lift_coefficient = (extra_lift_from_flap_setting) + lift_curve_slope * (AoA - zero_lift_angle_of_attack)
+        lift_coefficient = (extra_lift_from_flap_setting) + 0.09 * (AoA - (-3))
     # induced_drag_factor = 1 / (math.pi * oswald_efficiency_factor * aspect ratio)
     induced_drag_factor = 1 / (math.pi * oswald_efficiency_factor * 9.61)
-    # drag_coefficient = drag_coefficient_for_clean_configuration + (induced_drag_factor * math.pow(lift_coefficient, 2))
-    drag_coefficient = 0.033 + (induced_drag_factor * math.pow(lift_coefficient, 2))
+    # drag_coefficient = drag_coefficient_for_zero_lift + (induced_drag_factor * math.pow(lift_coefficient, 2))
+    drag_coefficient = 0.0212 + (induced_drag_factor * math.pow(lift_coefficient, 2))
     
     return(flight_path_angle, AoA, lift_coefficient, drag_coefficient)
 
@@ -312,7 +317,7 @@ while is_running == True:
     
     main.blit(swiss_plane_image, (470, 550))
     
-    if AoA >= 20 or AoA <= -50 or altitude <= 0:
+    if AoA >= 50 or AoA <= -50 or altitude <= 0:
         stall_crash_label_main = pygame.font.Font(None, 200).render("Stall / Crash", True, (255, 255, 255))
         main.blit(stall_crash_label_main, (100, 200))
         pygame.display.flip()
