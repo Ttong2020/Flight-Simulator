@@ -28,8 +28,6 @@ def matrix_calculation(*args):
     
     return(result_matrix)
 
-
-
 def matrix_multiplication(*args):
     matrices_to_multiply_tuple = args
     matrix_1 = matrices_to_multiply_tuple[0]
@@ -50,14 +48,6 @@ def matrix_multiplication(*args):
             matrix_1 = result_matrix
     
     return(result_matrix)
-
-
-
-
-matrix_2 = [[4,3],[2,1]]
-matrix_1 = [[5,6],[7,8]]
-matrix_3 = [[5,6],[7,8]]
-#matrix_addition(matrix_1, matrix_2, matrix_3)
 
 def initial_game_configuration():
 
@@ -83,26 +73,9 @@ def initial_game_configuration():
 # then draw sky, ground rectangle background with {x_axis_frame}, {y_axis_frame}
 def draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, width_of_visible_screen, height_of_visible_screen, x_axis_frame, y_axis_frame, sky_colour, ground_colour):
     
-    background_pitch_yaw_angle = pitch_angle + -(yaw_angle) * math.sin(math.radians(roll_angle))
-    change_in_action_due_to_height_of_visible_screen = height_of_visible_screen / 100
-    #x_y_center_of_background = [(width_of_visible_screen / 2) + (math.sin(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen), (height_of_visible_screen / 2) + math.cos(math.radians(roll_angle)) * (pitch_angle - yaw_angle) * change_in_action_due_to_height_of_visible_screen]
-    
     frame_visible_screen_main = pygame.Surface((width_of_visible_screen, height_of_visible_screen))
     
-    if 0 == 1:
-        x1 = x_y_center_of_background[0] - math.cos(math.radians(roll_angle)) * (width_of_background / 2)
-        y1 = x_y_center_of_background[1] + math.sin(math.radians(roll_angle)) * (width_of_background / 2)
-        x2 = x_y_center_of_background[0] + math.cos(math.radians(roll_angle)) * (width_of_background / 2)
-        y2 = x_y_center_of_background[1] - math.sin(math.radians(roll_angle)) * (width_of_background / 2)
-        x3_sky = x2 - math.sin(math.radians(roll_angle)) * (height_of_background / 2)
-        y3_sky = y2 - math.cos(math.radians(roll_angle)) * (height_of_background / 2)
-        x4_sky = x1 - math.sin(math.radians(roll_angle)) * (height_of_background / 2)
-        y4_sky = y1 - math.cos(math.radians(roll_angle)) * (height_of_background / 2)
-        x3_ground = x2 + math.sin(math.radians(roll_angle)) * (height_of_background / 2)
-        y3_ground = y2 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
-        x4_ground = x1 + math.sin(math.radians(roll_angle)) * (height_of_background / 2)
-        y4_ground = y1 + math.cos(math.radians(roll_angle)) * (height_of_background / 2)
-    
+    background_pitch_yaw_angle = pitch_angle + -(yaw_angle) * math.sin(math.radians(roll_angle))
     x_axis_to_translate = math.sin(math.radians(roll_angle)) * background_pitch_yaw_angle * 16
     y_axis_to_translate = math.cos(math.radians(roll_angle)) * background_pitch_yaw_angle * 16
     rotate_matrix = [[math.cos(math.radians(roll_angle)), math.sin(math.radians(roll_angle))], [-(math.sin(math.radians(roll_angle))), math.cos(math.radians(roll_angle))]]
@@ -125,25 +98,22 @@ def draw_primary_flight_display(roll_angle, pitch_angle, indicated_airspeed, alt
 
 # function to calculate {roll_angle}, {pitch_angle}
 def calculate_roll_angle_pitch_angle_yaw_angle(roll_angle, pitch_angle, yaw_angle, roll_input, pitch_input, yaw_input, yaw_angle_limit, indicated_airspeed, AoA):
-    global fps, time_per_frame
     
-    change_in_action_due_to_fps = 1 / (fps / 20)
     roll_angle = roll_angle + roll_input * time_per_frame * indicated_airspeed * 0.1
-    pitch_angle_change_joystick = math.cos(math.radians(roll_angle)) * pitch_input
     pitch_angle = pitch_angle + (time_per_frame * indicated_airspeed * pitch_input * math.cos(math.radians(roll_angle))) / (abs(AoA) + 20)
     yaw_angle = yaw_angle + (time_per_frame * indicated_airspeed) * ((yaw_input * 0.5) / (abs(yaw_angle) + 1.5) - (yaw_angle - yaw_angle_limit * yaw_input) * 0.003)
     if yaw_angle > yaw_angle_limit:
         yaw_angle = yaw_angle_limit
     if yaw_angle < -(yaw_angle_limit):
         yaw_angle = -(yaw_angle_limit)
+    
     return(roll_angle, pitch_angle, yaw_angle)
 
 # function to calculate {flight_path_angle}, {AoA}, {lift_coefficient}, {drag_coefficient}
 def calculate_lift_drag_coefficient(pitch_angle, horizontal_speed, vertical_speed, extra_lift_from_flap_setting, oswald_efficiency_factor):
     
     flight_path_angle = math.degrees(math.atan(vertical_speed / horizontal_speed))
-    # AoA = pitch_angle - flight_path_angle
-    #AoA = (pitch_angle - flight_path_angle) * math.cos(math.radians(roll_angle))
+    # note: include effect of rolling in AoA
     AoA = pitch_angle - flight_path_angle
     critical_AoA = 13
     if AoA >= critical_AoA:
@@ -156,9 +126,6 @@ def calculate_lift_drag_coefficient(pitch_angle, horizontal_speed, vertical_spee
     induced_drag_factor = 1 / (math.pi * oswald_efficiency_factor * 9.61)
     # drag_coefficient = drag_coefficient_for_zero_lift + (induced_drag_factor * math.pow(lift_coefficient, 2))
     drag_coefficient = 0.0212 + (induced_drag_factor * math.pow(lift_coefficient, 2))
-    
-    if AoA == 0:
-        AoA = 0.00000000001
     
     return(flight_path_angle, AoA, lift_coefficient, drag_coefficient)
 
@@ -284,10 +251,8 @@ while is_running == True:
     
     main.fill((192, 192, 192))
     
+    # funtion to calculate roll_angle, pitch_angle, yaw_angle
     roll_angle, pitch_angle, yaw_angle = calculate_roll_angle_pitch_angle_yaw_angle(roll_angle, pitch_angle, yaw_angle, roll_input, pitch_input, yaw_input, yaw_angle_limit, indicated_airspeed, AoA)
-    
-    # function to calculate x, y coordinate of all vertex of sky, ground rectangle background with {roll_angle}, {pitch_angle}, {width_of_background}, {height_of_background}
-    # then draw sky, ground rectangle background
     
     # funtion to calculate AoA, lift coefficient, and drag coefficient
     flight_path_angle, AoA, lift_coefficient, drag_coefficient = calculate_lift_drag_coefficient(pitch_angle, horizontal_speed, vertical_speed, extra_lift_from_flap_setting, oswald_efficiency_factor)
@@ -295,6 +260,8 @@ while is_running == True:
     # funtion to calculate height, actual_speed, horizontal_speed, vertical_speed, indicated_airspeed, altitude
     height, actual_speed, horizontal_speed, vertical_speed, indicated_airspeed, altitude = calculate_indicated_airspeed_altitude(flight_path_angle, height, roll_angle, pitch_angle, actual_speed, lift_coefficient, drag_coefficient, horizontal_speed, vertical_speed, throttle)
     
+    # function to calculate x, y coordinate of all vertex of sky, ground rectangle background with {roll_angle}, {pitch_angle}, {width_of_background}, {height_of_background}
+    # then draw sky, ground rectangle background
     draw_sky_ground_background(roll_angle, pitch_angle, yaw_angle, 1440, 900, 0, 0, (135, 206, 235), (34, 139, 34))
     #draw_primary_flight_display(roll_angle, pitch_angle, indicated_airspeed, altitude)
     
@@ -324,8 +291,8 @@ while is_running == True:
     
     main.blit(swiss_plane_image, (470, 550))
     
-    if altitude <= 0:
-        stall_crash_label_main = pygame.font.Font(None, 200).render("Stall / Crash", True, (255, 255, 255))
+    if AoA > 50 or AoA < -50 or altitude <= 0:
+        stall_crash_label_main = pygame.font.Font(None, 200).render("Deep Stall / Crash", True, (255, 255, 255))
         main.blit(stall_crash_label_main, (100, 200))
         pygame.display.flip()
         clock.tick(fps / 150)
@@ -335,10 +302,3 @@ while is_running == True:
     pygame.display.flip()
     
     clock.tick(fps)
-
-
-
-
-exit()
-#global standard_atmospheric_pressure_at_sea_level, standard_temperature_at_sea_level_KELVIN, gravitational_acceleration, molar_mass_of_dry_air, temperature_lapse_rate, ideal_gas_constant, specific_gas_constant_for_dry_air, air_density_at_sea_level
-#global wing_reference_area, mass_of_plane, weight_of_plane, maximum_thrust_at_sea_level_static_conditions
