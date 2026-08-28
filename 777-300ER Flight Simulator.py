@@ -28,6 +28,13 @@ def matrix_calculation(*args):
     
     return(result_matrix)
 
+matrix_1 = [[1,2],
+            [3,4]]
+matrix_2 = [[2,3],
+            [4,5],
+            [8,9]]
+#print(matrix_calculation(matrix_1, "*", matrix_2))
+
 def matrix_multiplication(*args):
     matrices_to_multiply_tuple = args
     matrix_1 = matrices_to_multiply_tuple[0]
@@ -54,7 +61,7 @@ def initial_game_configuration():
     roll_angle = 0
     pitch_angle = 0
     yaw_angle = 0
-    horizontal_speed = 103
+    longitudinal_speed = 103
     vertical_speed = 0
     actual_speed = 103
     indicated_airspeed = 170
@@ -62,12 +69,13 @@ def initial_game_configuration():
     altitude = height * 3.281
     extra_lift_from_flap_setting = 0
     oswald_efficiency_factor = 0.87
-    flight_path_angle, AoA, lift_coefficient, drag_coefficient = calculate_lift_drag_coefficient(pitch_angle, horizontal_speed, vertical_speed, extra_lift_from_flap_setting, oswald_efficiency_factor)
+    flight_path_angle, AoA, lift_coefficient, drag_coefficient = calculate_lift_drag_coefficient(pitch_angle, longitudinal_speed, vertical_speed, extra_lift_from_flap_setting, oswald_efficiency_factor)
     AoA = -3
     fps = 70
     time_per_frame = 1 / fps
+    heading = 0
     
-    return(roll_angle, pitch_angle, yaw_angle, horizontal_speed, vertical_speed, actual_speed, indicated_airspeed, height, altitude, extra_lift_from_flap_setting, oswald_efficiency_factor, flight_path_angle, AoA, lift_coefficient, drag_coefficient, fps, time_per_frame)
+    return(roll_angle, pitch_angle, yaw_angle, longitudinal_speed, vertical_speed, actual_speed, indicated_airspeed, height, altitude, extra_lift_from_flap_setting, oswald_efficiency_factor, flight_path_angle, AoA, lift_coefficient, drag_coefficient, fps, time_per_frame, heading)
 
 # calculate x, y coordinate of all vertex of sky, ground rectangle background with {roll_angle}, {pitch_angle}, {width_of_visible_screen}, {height_of_visible_screen}
 # then draw sky, ground rectangle background with {x_axis_frame}, {y_axis_frame}
@@ -110,9 +118,9 @@ def calculate_roll_angle_pitch_angle_yaw_angle(roll_angle, pitch_angle, yaw_angl
     return(roll_angle, pitch_angle, yaw_angle)
 
 # function to calculate {flight_path_angle}, {AoA}, {lift_coefficient}, {drag_coefficient}
-def calculate_lift_drag_coefficient(pitch_angle, horizontal_speed, vertical_speed, extra_lift_from_flap_setting, oswald_efficiency_factor):
+def calculate_lift_drag_coefficient(pitch_angle, longitudinal_speed, vertical_speed, extra_lift_from_flap_setting, oswald_efficiency_factor):
     
-    flight_path_angle = math.degrees(math.atan(vertical_speed / horizontal_speed))
+    flight_path_angle = math.degrees(math.atan(vertical_speed / longitudinal_speed))
     # note: include effect of rolling in AoA
     AoA = pitch_angle - flight_path_angle
     critical_AoA = 13
@@ -129,45 +137,47 @@ def calculate_lift_drag_coefficient(pitch_angle, horizontal_speed, vertical_spee
     
     return(flight_path_angle, AoA, lift_coefficient, drag_coefficient)
 
-# function to calculate {height}, {actual_speed}, {horizontal_speed}, {vertical_speed}, {indicated_airspeed}, {altitude}
-def calculate_indicated_airspeed_altitude(flight_path_angle, height, roll_angle, pitch_angle, actual_speed, lift_coefficient, drag_coefficient, horizontal_speed, vertical_speed, throttle):
+# function to calculate {height}, {actual_speed}, {longitudinal_speed}, {vertical_speed}, {indicated_airspeed}, {altitude}
+def calculate_indicated_airspeed_altitude(flight_path_angle, height, roll_angle, pitch_angle, actual_speed, lift_coefficient, drag_coefficient, longitudinal_speed, vertical_speed, throttle, heading):
 
     temperature_at_altitude_KELVIN = standard_temperature_at_sea_level_KELVIN - temperature_lapse_rate * height
     pressure_at_altitude = standard_atmospheric_pressure_at_sea_level * math.pow((temperature_at_altitude_KELVIN / standard_temperature_at_sea_level_KELVIN), (gravitational_acceleration * molar_mass_of_dry_air) / (ideal_gas_constant * temperature_lapse_rate))
     air_density_at_altitude = pressure_at_altitude / (specific_gas_constant_for_dry_air * temperature_at_altitude_KELVIN)
     thrust = maximum_thrust_at_sea_level_static_conditions * throttle * math.pow((air_density_at_altitude / air_density_at_sea_level), 0.42)
-    horizontal_thrust = math.cos(math.radians(pitch_angle)) * thrust
+    longitudinal_thrust = math.cos(math.radians(pitch_angle)) * thrust
     vertical_thrust = math.sin(math.radians(pitch_angle)) * thrust
     drag = 0.5 * air_density_at_altitude * math.pow(actual_speed, 2) * wing_reference_area * drag_coefficient
-    horizontal_drag = -(math.cos(math.radians(flight_path_angle)) * drag)
+    longitudinal_drag = -(math.cos(math.radians(flight_path_angle)) * drag)
     vertical_drag = -(math.sin(math.radians(flight_path_angle)) * drag)
     lift = 0.5 * air_density_at_altitude * math.pow(actual_speed, 2) * wing_reference_area * lift_coefficient
-    #horizontal_lift = -(math.cos(math.radians(roll_angle)) * math.sin(math.radians(flight_path_angle)) * lift)
+    #longitudinal_lift = -(math.cos(math.radians(roll_angle)) * math.sin(math.radians(flight_path_angle)) * lift)
     #vertical_lift = math.cos(math.radians(roll_angle)) * math.cos(math.radians(flight_path_angle)) * lift
-    #horizontal_lift = -(math.sin(math.radians(flight_path_angle)) * lift)
+    #longitudinal_lift = -(math.sin(math.radians(flight_path_angle)) * lift)
     #vertical_lift = math.cos(math.radians(flight_path_angle)) * lift
-    horizontal_lift = -((lift * math.tan(math.radians(pitch_angle))) / math.pow(1 + math.pow(math.tan(math.radians(roll_angle)), 2) + math.pow(math.tan(math.radians(pitch_angle)), 2), 0.5))
     vertical_lift = lift / math.pow(1 + math.pow(math.tan(math.radians(abs(roll_angle))), 2) + math.pow(math.tan(math.radians(pitch_angle)), 2), 0.5)
+    longitudinal_lift = -(vertical_lift * math.tan(math.radians(pitch_angle)))
+    lateral_lift = vertical_lift * abs(math.tan(math.radians(roll_angle)))
+    heading = heading + ((lateral_lift * time_per_frame) / (mass_of_plane * actual_speed)) * (180 / math.pi)
     if abs(roll_angle) % 360 >= 90 and abs(roll_angle) % 360 <= 270:
         vertical_lift = -(vertical_lift)
     # find resultant force
-    horizontal_force = horizontal_thrust + horizontal_drag + horizontal_lift
+    longitudinal_force = longitudinal_thrust + longitudinal_drag + longitudinal_lift
     vertical_force = vertical_lift - weight_of_plane + vertical_thrust + vertical_drag
     # a = F/m
-    horizontal_acceleration = horizontal_force / mass_of_plane
+    longitudinal_acceleration = longitudinal_force / mass_of_plane
     vertical_acceleration = vertical_force / mass_of_plane
     # s = ut + 1/2 at^2
     height = height + ((vertical_speed * time_per_frame) + (0.5 * vertical_acceleration * math.pow(time_per_frame, 2)))
     # v = u + at
-    horizontal_speed = horizontal_speed + horizontal_acceleration * time_per_frame
+    longitudinal_speed = longitudinal_speed + longitudinal_acceleration * time_per_frame
     vertical_speed = vertical_speed + vertical_acceleration * time_per_frame
-    actual_speed = math.pow(math.pow(horizontal_speed, 2) + math.pow(vertical_speed, 2), 0.5)
+    actual_speed = math.pow(math.pow(longitudinal_speed, 2) + math.pow(vertical_speed, 2), 0.5)
     # convert actual_speed(m/s) to actual_speed(knots), then convert to true indicated_airspeed(knots)
     indicated_airspeed = ((actual_speed * 3.6) / 1.852) * math.pow((air_density_at_sea_level / air_density_at_altitude), 0.5)
     # convert m to feet
     altitude = height * 3.281
     
-    return(height, actual_speed, horizontal_speed, vertical_speed, indicated_airspeed, altitude)
+    return(height, actual_speed, longitudinal_speed, vertical_speed, indicated_airspeed, altitude, heading)
 
 # scientific constants
 standard_atmospheric_pressure_at_sea_level = 101325
@@ -187,7 +197,7 @@ maximum_thrust_at_sea_level_static_conditions = 1024000
 yaw_angle_limit = 15
 
 #initial game configuration
-roll_angle, pitch_angle, yaw_angle, horizontal_speed, vertical_speed, actual_speed, indicated_airspeed, height, altitude, extra_lift_from_flap_setting, oswald_efficiency_factor, flight_path_angle, AoA, lift_coefficient, drag_coefficient, fps, time_per_frame = initial_game_configuration()
+roll_angle, pitch_angle, yaw_angle, longitudinal_speed, vertical_speed, actual_speed, indicated_airspeed, height, altitude, extra_lift_from_flap_setting, oswald_efficiency_factor, flight_path_angle, AoA, lift_coefficient, drag_coefficient, fps, time_per_frame, heading = initial_game_configuration()
 width_of_background = math.pow(math.pow(1440, 2) + math.pow(900, 2), 0.5)
 height_of_background = 900 * 10
 translate_matrix_to_final_coordinate = [[1440 / 2, 1440 / 2, 1440 / 2, 1440 / 2, 1440 / 2, 1440 / 2],[900 / 2, 900 / 2, 900 / 2, 900 / 2, 900 / 2, 900 / 2]]
@@ -255,10 +265,10 @@ while is_running == True:
     roll_angle, pitch_angle, yaw_angle = calculate_roll_angle_pitch_angle_yaw_angle(roll_angle, pitch_angle, yaw_angle, roll_input, pitch_input, yaw_input, yaw_angle_limit, indicated_airspeed, AoA)
     
     # funtion to calculate AoA, lift coefficient, and drag coefficient
-    flight_path_angle, AoA, lift_coefficient, drag_coefficient = calculate_lift_drag_coefficient(pitch_angle, horizontal_speed, vertical_speed, extra_lift_from_flap_setting, oswald_efficiency_factor)
+    flight_path_angle, AoA, lift_coefficient, drag_coefficient = calculate_lift_drag_coefficient(pitch_angle, longitudinal_speed, vertical_speed, extra_lift_from_flap_setting, oswald_efficiency_factor)
     
-    # funtion to calculate height, actual_speed, horizontal_speed, vertical_speed, indicated_airspeed, altitude
-    height, actual_speed, horizontal_speed, vertical_speed, indicated_airspeed, altitude = calculate_indicated_airspeed_altitude(flight_path_angle, height, roll_angle, pitch_angle, actual_speed, lift_coefficient, drag_coefficient, horizontal_speed, vertical_speed, throttle)
+    # funtion to calculate height, actual_speed, longitudinal_speed, vertical_speed, indicated_airspeed, altitude
+    height, actual_speed, longitudinal_speed, vertical_speed, indicated_airspeed, altitude, heading = calculate_indicated_airspeed_altitude(flight_path_angle, height, roll_angle, pitch_angle, actual_speed, lift_coefficient, drag_coefficient, longitudinal_speed, vertical_speed, throttle, heading)
     
     # function to calculate x, y coordinate of all vertex of sky, ground rectangle background with {roll_angle}, {pitch_angle}, {width_of_background}, {height_of_background}
     # then draw sky, ground rectangle background
@@ -274,7 +284,7 @@ while is_running == True:
     altitude_label_main = pygame.font.Font(None, 60).render("Altitude: " + str(round(altitude, 0))[:-2] + " fts", True, (255, 255, 255))
     main.blit(altitude_label_main, (0, 100))
     
-    indicated_airspeed_label_main = pygame.font.Font(None, 30).render("Horizontal speed: " + str(round(horizontal_speed, 0))[:-2], True, (255, 255, 255))
+    indicated_airspeed_label_main = pygame.font.Font(None, 30).render("longitudinal speed: " + str(round(longitudinal_speed, 0))[:-2], True, (255, 255, 255))
     main.blit(indicated_airspeed_label_main, (0, 150))
     
     altitude_label_main = pygame.font.Font(None, 30).render("Vertical speed: " + str(round(vertical_speed, 0))[:-2], True, (255, 255, 255))
@@ -289,6 +299,9 @@ while is_running == True:
     indicated_airspeed_label_main = pygame.font.Font(None, 30).render("Yaw angle: " + str(round(yaw_angle, 0))[:-2], True, (255, 255, 255))
     main.blit(indicated_airspeed_label_main, (0, 350))
     
+    indicated_airspeed_label_main = pygame.font.Font(None, 30).render("Heading: " + str(round(heading % 360, 0))[:-2], True, (255, 255, 255))
+    main.blit(indicated_airspeed_label_main, (0, 400))
+    
     main.blit(swiss_plane_image, (470, 550))
     
     if AoA > 50 or AoA < -50 or altitude <= 0:
@@ -296,7 +309,7 @@ while is_running == True:
         main.blit(stall_crash_label_main, (100, 200))
         pygame.display.flip()
         clock.tick(fps / 150)
-        roll_angle, pitch_angle, yaw_angle, horizontal_speed, vertical_speed, actual_speed, indicated_airspeed, height, altitude, extra_lift_from_flap_setting, oswald_efficiency_factor, flight_path_angle, AoA, lift_coefficient, drag_coefficient, fps, time_per_frame = initial_game_configuration()
+        roll_angle, pitch_angle, yaw_angle, longitudinal_speed, vertical_speed, actual_speed, indicated_airspeed, height, altitude, extra_lift_from_flap_setting, oswald_efficiency_factor, flight_path_angle, AoA, lift_coefficient, drag_coefficient, fps, time_per_frame, heading = initial_game_configuration()
         continue
     
     pygame.display.flip()
